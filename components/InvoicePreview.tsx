@@ -16,7 +16,10 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice }) => {
   const total = subtotal - discountAmount + taxAmount;
 
   return (
-    <div className="bg-white text-slate-900 p-8 md:p-12 shadow-2xl rounded-sm min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-hidden print:shadow-none print:m-0 print:w-full print:max-w-none print:h-auto print:rounded-none">
+    <div 
+      id="invoice-preview" 
+      className="bg-white text-slate-900 p-8 md:p-12 shadow-2xl rounded-sm min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-hidden print:shadow-none print:m-0 print:w-full print:max-w-none print:h-auto print:rounded-none"
+    >
       
       {/* Header */}
       <div className="flex justify-between items-start mb-12">

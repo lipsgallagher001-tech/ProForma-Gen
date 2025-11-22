@@ -11,6 +11,7 @@ export default function App() {
   const [savedInvoices, setSavedInvoices] = useState<InvoiceSavedSummary[]>([]);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Load list of saved invoices from localStorage on mount
   useEffect(() => {
@@ -78,14 +79,47 @@ export default function App() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPDF = () => {
+    setIsExporting(true);
+    const element = document.getElementById('invoice-preview');
+    
+    if (!element) {
+        setIsExporting(false);
+        return;
+    }
+
+    const opt = {
+      margin: 0,
+      filename: `Proforma-${invoice.number}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // @ts-ignore
+    if (window.html2pdf) {
+        setTimeout(() => {
+            // @ts-ignore
+            window.html2pdf().set(opt).from(element).save().then(() => {
+                setIsExporting(false);
+                showNotification('PDF téléchargé !');
+            }).catch((err: any) => {
+                console.error(err);
+                setIsExporting(false);
+                alert("Une erreur est survenue lors de la génération du PDF.");
+            });
+        }, 100);
+    } else {
+        // Fallback
+        window.print();
+        setIsExporting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-purple-500 selection:text-white font-sans">
+    <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-purple-500 selection:text-white font-sans print:bg-white">
       {/* Background Gradients */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none print:hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
       </div>
@@ -114,9 +148,14 @@ export default function App() {
                     <span className="ml-2 hidden md:inline">Sauvegarder</span>
                 </Button>
                 <div className="h-6 w-px bg-white/10 mx-2"></div>
-                <Button variant="primary" onClick={handlePrint} className="shadow-purple-500/20">
-                    <Printer size={18} />
-                    <span className="ml-2 hidden md:inline">Export PDF</span>
+                <Button 
+                    variant="primary" 
+                    onClick={handleExportPDF} 
+                    className="shadow-purple-500/20"
+                    loading={isExporting}
+                >
+                    <Download size={18} />
+                    <span className="ml-2 hidden md:inline">Télécharger PDF</span>
                 </Button>
             </div>
         </div>
@@ -150,7 +189,7 @@ export default function App() {
                     Format A4
                 </div>
             </div>
-            <div className="print:w-full print:absolute print:top-0 print:left-0">
+            <div className="print:w-full print:absolute print:top-0 print:left-0 print:m-0">
                 <InvoicePreview invoice={invoice} />
             </div>
         </div>
