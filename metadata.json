@@ -1,0 +1,5 @@
+{
+  "name": "ProForma Gen",
+  "description": "A modern, offline-capable ProForma invoice generator with glassmorphism design and PDF export.",
+  "requestFramePermissions": []
+}
